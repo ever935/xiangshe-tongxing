@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>乡社同行 · 儿童个案社会工作介入工作台</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar noprint">
+  <div class="brand">
+    <span class="logo">乡社同行</span>
+    <span class="sub">儿童个案社会工作介入工作台</span>
+  </div>
+  <div class="topbar-right">
+    <span class="tag">去标识化记录 · 数据仅存本机浏览器</span>
+    <button id="btnExport" class="btn ghost">导出备份</button>
+    <button id="btnImport" class="btn ghost">导入</button>
+    <input type="file" id="fileImport" accept="application/json" hidden>
+  </div>
+</header>
+
+<div id="alertBar" class="alertbar noprint" hidden></div>
+
+<div class="layout">
+  <nav class="side noprint">
+    <div class="side-block">
+      <div class="side-title">当前个案</div>
+      <select id="caseSelect" class="select"></select>
+      <button id="btnNewCase" class="btn block">+ 新建个案</button>
+    </div>
+    <ul class="menu">
+      <li><a href="#cases" class="active">个案档案</a></li>
+      <li><a href="#visit">① 家访快记</a></li>
+      <li><a href="#assess">② 需求与风险评估</a></li>
+      <li><a href="#plan">③ 帮扶方案生成</a></li>
+      <li><a href="#ledger">④ 成效复盘台账</a></li>
+      <li><a href="#expert">⑤ 实务督导问答</a></li>
+      <li><a href="#cards">⑥ 沟通提醒卡</a></li>
+      <li><a href="#about">数据与伦理</a></li>
+    </ul>
+    <div class="side-foot">六阶段：接案 → 预估 → 计划 → 介入 → 评估 → 结案</div>
+  </nav>
+
+  <main id="main">
+
+    <!-- 个案档案 -->
+    <section class="view" id="view-cases">
+      <h1>个案档案</h1>
+      <p class="lead">先建立个案，再使用右侧各模块。建档时请使用编号或「该生」，不要填写姓名、学号、家庭住址。</p>
+
+      <div class="stats" id="stats"></div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>个案列表</h2></div>
+        <div id="caseList" class="list"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>编辑当前个案</h2><span id="caseStamp" class="stamp"></span></div>
+        <div class="grid2">
+          <label class="field"><span>个案编号</span><input id="c_code" class="input" placeholder="A01"></label>
+          <label class="field"><span>年级班级（可不填）</span><input id="c_grade" class="input" placeholder="三年级"></label>
+          <label class="field"><span>当前阶段</span>
+            <select id="c_stage" class="select">
+              <option>接案</option><option>预估</option><option>计划</option><option>介入</option><option>评估</option><option>结案</option>
+            </select>
+          </label>
+          <label class="field"><span>建档日期</span><input id="c_created" class="input" type="date"></label>
+        </div>
+        <label class="field"><span>来源与初步观察（谁发现、最初看到了什么）</span>
+          <textarea id="c_note" class="input" rows="3" placeholder="例：班主任家访发现，近一个月上课走神、不与同学往来。"></textarea>
+        </label>
+        <div class="row-btns">
+          <button id="btnSaveCase" class="btn primary">保存档案</button>
+          <button id="btnDelCase" class="btn danger">删除该个案</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ① 家访快记 -->
+    <section class="view" id="view-visit" hidden>
+      <h1>① 家访快记</h1>
+      <p class="lead">半结构化录入，自动生成规范《家访记录表》。记录请把「客观观察」与「他人表述」分开写，这是社工记录的基本要求。</p>
+
+      <div class="panel">
+        <div class="grid2">
+          <label class="field"><span>家访日期</span><input id="v_date" class="input" type="date"></label>
+          <label class="field"><span>家访方式</span>
+            <select id="v_method" class="select">
+              <option>入户家访</option><option>电话沟通</option><option>校内约谈</option><option>村委/社区走访</option><option>其他</option>
+            </select>
+          </label>
+          <label class="field"><span>参与人</span><input id="v_staff" class="input" placeholder="班主任、驻校社工"></label>
+          <label class="field"><span>在场人员</span><input id="v_present" class="input" placeholder="祖父、该生"></label>
+        </div>
+        <label class="field"><span>客观观察（看到的事实，不写推测）</span>
+          <textarea id="v_observed" class="input" rows="3" placeholder="例：屋内无照明光源；该生全程低头不语；桌上无作业本。"></textarea>
+        </label>
+        <label class="field"><span>监护人表述（记录原话要点）</span>
+          <textarea id="v_guardian" class="input" rows="3"></textarea>
+        </label>
+        <label class="field"><span>该生表述（记录原话要点）</span>
+          <textarea id="v_student" class="input" rows="3"></textarea>
+        </label>
+        <div class="field">
+          <span>本次发现的风险线索（勾选即触发强制报告提示）</span>
+          <div class="checks" id="v_risks"></div>
+        </div>
+        <label class="field"><span>已做处置</span><textarea id="v_done" class="input" rows="2"></textarea></label>
+        <div class="grid2">
+          <label class="field"><span>下一步约定</span><input id="v_next" class="input" placeholder="11-05 再次家访，联系村委"></label>
+          <label class="field"><span>记录人</span><input id="v_writer" class="input" placeholder="班主任"></label>
+        </div>
+        <div class="row-btns">
+          <button id="btnVisitGen" class="btn primary">生成《家访记录表》</button>
+          <button id="btnVisitSave" class="btn">保存并归入台账</button>
+        </div>
+      </div>
+
+      <div class="panel" id="visitOut" hidden>
+        <div class="panel-head"><h2>家访记录表</h2>
+          <div class="noprint"><button id="btnVisitCopy" class="btn ghost">复制</button><button id="btnVisitPrint" class="btn ghost">打印</button></div>
+        </div>
+        <pre class="doc" id="visitDoc"></pre>
+      </div>
+    </section>
+
+    <!-- ② 需求与风险评估 -->
+    <section class="view" id="view-assess" hidden>
+      <h1>② 儿童需求与风险评估</h1>
+      <p class="lead">规则计分，不用大模型生成：同一份输入两次评估结果必然一致，每项得分可追溯。</p>
+
+      <div class="panel">
+        <div class="grid2">
+          <label class="field"><span>情绪低落程度（1 未见低落 – 5 严重）</span>
+            <select id="a_mood" class="select"><option value="1">1 未见低落</option><option value="2">2 轻微</option><option value="3" selected>3 中等</option><option value="4">4 明显</option><option value="5">5 严重</option></select>
+          </label>
+          <label class="field"><span>同伴关系（1 严重孤立 – 5 良好，反向计分）</span>
+            <select id="a_peer" class="select"><option value="1">1 严重孤立</option><option value="2">2 较差</option><option value="3" selected>3 一般</option><option value="4">4 较好</option><option value="5">5 良好</option></select>
+          </label>
+          <label class="field"><span>监护状况</span>
+            <select id="a_guard" class="select"><option>健全</option><option selected>弱化</option><option>缺失</option></select>
+          </label>
+          <label class="field"><span>生活照料</span>
+            <select id="a_care" class="select"><option>充足</option><option>不足</option><option>严重不足</option></select>
+          </label>
+          <label class="field"><span>学业与在校状态（1 严重落后 – 5 良好，反向计分）</span>
+            <select id="a_acad" class="select"><option value="1">1 严重落后</option><option value="2">2 较落后</option><option value="3" selected>3 一般</option><option value="4">4 较好</option><option value="5">5 良好</option></select>
+          </label>
+          <label class="field"><span>学校支持是否落实</span>
+            <select id="a_support" class="select"><option value="yes">已落实</option><option value="no" selected>未落实</option></select>
+          </label>
+        </div>
+
+        <div class="field">
+          <span>硬触发项（任一为真，直接判红并中断常规流程）</span>
+          <div class="checks" id="a_risks"></div>
+        </div>
+
+        <div class="row-btns"><button id="btnAssess" class="btn primary">评估</button></div>
+
+        <details class="rules">
+          <summary>计分规则表（答辩可引用）</summary>
+          <table class="table">
+            <thead><tr><th>维度</th><th>取值</th><th>计分</th></tr></thead>
+            <tbody>
+              <tr><td>情绪低落程度</td><td>1–5</td><td>×2 → 0–10</td></tr>
+              <tr><td>同伴关系（反向）</td><td>1–5</td><td>×1.5 → 0–6</td></tr>
+              <tr><td>监护状况</td><td>健全 / 弱化 / 缺失</td><td>0 / 2 / 4</td></tr>
+              <tr><td>生活照料</td><td>充足 / 不足 / 严重不足</td><td>0 / 2 / 4</td></tr>
+              <tr><td>学业与在校状态（反向）</td><td>1–5</td><td>×0.5 → 0–2</td></tr>
+              <tr><td>学校支持是否落实</td><td>是 / 否</td><td>0 / 2</td></tr>
+              <tr><td><b>合计</b></td><td></td><td><b>0–28</b></td></tr>
+            </tbody>
+          </table>
+          <p class="hint">分级：0–8 绿（常态关注）｜9–16 黄（重点关注，需个案计划）｜≥17 红（立即介入）。硬触发优先于一切计分。</p>
+        </details>
+      </div>
+
+      <div class="panel" id="assessOut" hidden>
+        <div class="panel-head"><h2>评估结果</h2><div class="noprint"><button id="btnAssessSave" class="btn">保存评估</button></div></div>
+        <div id="assessResult"></div>
+      </div>
+    </section>
+
+    <!-- ③ 帮扶方案生成 -->
+    <section class="view" id="view-plan" hidden>
+      <h1>③ 帮扶方案生成</h1>
+      <p class="lead">按个案工作 / 小组工作方法输出计划书模板。内容为规则化模板，非 AI 自由生成，输出稳定可审计；最终方案由教师本人确认。</p>
+
+      <div class="panel">
+        <div class="grid2">
+          <label class="field"><span>服务方法</span>
+            <select id="p_method" class="select"><option value="case">个案工作</option><option value="group">小组工作</option></select>
+          </label>
+          <label class="field"><span>计划周期</span><input id="p_weeks" class="input" value="6 周"></label>
+          <label class="field"><span>跟进频次</span><input id="p_freq" class="input" value="每周 1 次"></label>
+          <label class="field"><span>负责人</span><input id="p_owner" class="input" placeholder="班主任 / 驻校社工"></label>
+        </div>
+        <div class="field">
+          <span>介入焦点（可多选）</span>
+          <div class="checks" id="p_focus"></div>
+        </div>
+        <div class="row-btns">
+          <button id="btnPlanGen" class="btn primary">生成计划书</button>
+          <button id="btnPlanSave" class="btn">保存方案</button>
+        </div>
+      </div>
+
+      <div class="panel" id="planOut" hidden>
+        <div class="panel-head"><h2>个案服务计划书</h2>
+          <div class="noprint"><button id="btnPlanCopy" class="btn ghost">复制</button><button id="btnPlanPrint" class="btn ghost">打印</button></div>
+        </div>
+        <pre class="doc" id="planDoc"></pre>
+      </div>
+    </section>
+
+    <!-- ④ 成效复盘台账 -->
+    <section class="view" id="view-ledger" hidden>
+      <h1>④ 成效复盘台账</h1>
+      <p class="lead">自动汇总该个案的家访、评估、方案与跟进记录，按时间倒序成链；期末可直接导出交台账。</p>
+
+      <div class="panel">
+        <div class="panel-head"><h2>追加跟进记录</h2></div>
+        <div class="grid2">
+          <label class="field"><span>日期</span><input id="f_date" class="input" type="date"></label>
+          <label class="field"><span>本次风险等级</span>
+            <select id="f_level" class="select"><option>绿</option><option selected>黄</option><option>红</option></select>
+          </label>
+        </div>
+        <label class="field"><span>本阶段变化与调整</span><textarea id="f_adjust" class="input" rows="3" placeholder="做了什么、有何变化、下一步是什么"></textarea></label>
+        <div class="row-btns">
+          <button id="btnFollowSave" class="btn primary">追加记录</button>
+          <button id="btnLedgerExport" class="btn ghost">导出全部记录（TXT）</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>时间线</h2><span id="ledgerCount" class="stamp"></span></div>
+        <div id="ledger" class="timeline"></div>
+      </div>
+    </section>
+
+    <!-- ⑤ 实务督导问答 -->
+    <section class="view" id="view-expert" hidden>
+      <h1>⑤ 实务督导问答</h1>
+      <p class="lead">本模块由「领域专家」承担，不在工作台内重复建设，避免与专家能力重叠。</p>
+      <div class="panel">
+        <h2>使用方式</h2>
+        <ol class="steps">
+          <li>在 WorkBuddy 左侧「专家」入口进入本领域专家；</li>
+          <li>按「初次接案信息采集清单 / 回访跟进提问清单」提问，专家按固定模板输出《个案跟进评估记录》；</li>
+          <li>触发高危信号时，专家中断常规提问，直接输出《紧急处置指引》。</li>
+        </ol>
+        <p class="hint">提问库已包含：限量提问（单次 2–3 条）、强制收敛（最多 2 轮）、风险前置、硬触发中断、去标识化、能力边界六条全局规则。</p>
+      </div>
+    </section>
+
+    <!-- ⑥ 沟通提醒卡 -->
+    <section class="view" id="view-cards" hidden>
+      <h1>⑥ 沟通提醒卡</h1>
+      <p class="lead">静态卡片库，非 AI 实时生成 —— 只提供沟通思路与禁忌提醒，<b>不代笔对学生的表达</b>。可离线、可审计。</p>
+      <div class="cards">
+        <div class="card"><h3>开场</h3><p>先用一句开放式问题（「最近在学校怎么样？」），前 30 秒不追问细节、不评判。</p></div>
+        <div class="card"><h3>禁忌</h3><p>不说「你要坚强」「别人比你更难」「想开点」「爸爸妈妈是为你好」。</p></div>
+        <div class="card"><h3>倾听</h3><p>用自己的话复述对方的表述以确认理解，不急着给建议。</p></div>
+        <div class="card"><h3>保密边界</h3><p>涉及安全问题时无法保密，需在谈话开始时如实说明。</p></div>
+        <div class="card"><h3>收尾</h3><p>明确下一步与下次时间，不留下悬而未决的承诺。</p></div>
+      </div>
+      <div class="panel">
+        <h2>为什么不做「话术生成」</h2>
+        <p>如果工具直接产出教师可照读的安抚话术，等于由机器代替教师向学生表达，既失真也不负责任。卡片只框定思路与边界，具体怎么说仍由教师本人决定。</p>
+      </div>
+    </section>
+
+    <!-- 数据与伦理 -->
+    <section class="view" id="view-about" hidden>
+      <h1>数据与伦理</h1>
+
+      <div class="panel">
+        <h2>两条 AI 边界</h2>
+        <table class="table">
+          <tbody>
+            <tr><td class="nowrap"><b>边界一</b></td><td><b>不代笔对学生的表达</b>。沟通提醒卡只提供沟通思路与禁忌提醒，不生成任何教师可直接照读的安抚话术。</td></tr>
+            <tr><td class="nowrap"><b>边界二</b></td><td><b>不替代专业判断</b>。所有评估结论、转介决定、介入方案均由教师本人作出，工具仅输出参考与提示。</td></tr>
+          </tbody>
+        </table>
+        <p class="hint">边界一不适用于「实务督导问答」：该模块面向教师提供专业建议，属于对专业人员的能力支持，与替教师向学生表达性质不同。</p>
+      </div>
+
+      <div class="panel">
+        <h2>数据存储与隐私</h2>
+        <ul class="steps">
+          <li>全部数据保存在本机浏览器 localStorage，不上传服务器、不联网传输；</li>
+          <li>请以编号（如 A01）或「该生」记录，避免姓名、学号、身份证号、家庭住址；</li>
+          <li>换班主任交接时，用「导出备份」生成 JSON 文件移交，导入即可恢复；</li>
+          <li>本工具不提供诊断，不构成任何专业意见，处置以专业机构判断为准。</li>
+        </ul>
+        <div class="row-btns">
+          <button id="btnWipe" class="btn danger">清空本机全部数据</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>强制报告义务</h2>
+        <p>依据《中华人民共和国未成年人保护法》第十一条。出现自伤、受虐待、欺凌、严重忽视、离家出走任一情形时，工具置顶红色警示并输出处置指引；是否上报、何时上报由教师与学校依规决定。</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="store.js"></script>
+<script src="risk.js"></script>
+<script src="plan.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
